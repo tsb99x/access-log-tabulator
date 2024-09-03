@@ -1,0 +1,7 @@
+---
+ColumnLimit: 80
+IndentWidth: 8
+BreakBeforeBraces: Custom
+BraceWrapping:
+  AfterFunction: true
+...
