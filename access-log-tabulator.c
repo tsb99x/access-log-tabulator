@@ -73,20 +73,24 @@ void error(const char *m)
 
 const char *print_non_spaces(const char *s)
 {
-        for (; !isspace(*s) && *s != '\0'; s++)
+        for (; !isspace(*s) && *s != '\0'; s++) {
                 putchar(*s);
+        }
         return s;
 }
 
 const char *print_enclosed(const char *s, const char op, const char end)
 {
-        if (*s != op)
+        if (*s != op) {
                 error(err_wrong_line_format);
+        }
         s++;
-        for (; *s != end && *s != '\0'; s++)
+        for (; *s != end && *s != '\0'; s++) {
                 putchar(*s);
-        if (*s != end)
+        }
+        if (*s != end) {
                 error(err_wrong_line_format);
+        }
         s++;
         return s;
 }
@@ -107,18 +111,22 @@ const char *print_timestamp_as_iso(const char *s)
         struct tm time;
         memset(&time, 0, sizeof(struct tm));
 
-        if (*s != '[')
+        if (*s != '[') {
                 error(err_wrong_line_format);
+        }
         s++;
         s = strptime(s, fmt_apache, &time);
-        if (!s)
+        if (!s) {
                 error(err_wrong_time_format);
-        if (*s != ']')
+        }
+        if (*s != ']') {
                 error(err_wrong_line_format);
+        }
         s++;
 
-        if (!strftime(dt_buf, sizeof(dt_buf), fmt_iso, &time))
+        if (!strftime(dt_buf, sizeof(dt_buf), fmt_iso, &time)) {
                 error(err_time_buffer_size_exceeded);
+        }
         printf("%s", dt_buf);
 
         return s;
@@ -131,8 +139,9 @@ int main(int argc, char *argv[])
 
         (void)**argv;
 
-        if (argc > 1)
+        if (argc > 1) {
                 error(err_too_many_args);
+        }
 
         printf("host\t"
                "identity\t"
@@ -145,8 +154,9 @@ int main(int argc, char *argv[])
                "agent\n");
 
         while (fgets(in_buf, sizeof(in_buf), stdin)) {
-                if (!memchr(in_buf, '\n', sizeof(in_buf)))
+                if (!memchr(in_buf, '\n', sizeof(in_buf))) {
                         error(err_line_is_too_long);
+                }
 
                 s = in_buf;
                 if (*s == '\n') {
@@ -200,13 +210,15 @@ int main(int argc, char *argv[])
 
                 /* ("%{User-agent}i") user-agent */
                 s = print_enclosed(s, '"', '"');
-                if (*s != '\n')
+                if (*s != '\n') {
                         error(err_wrong_line_format);
+                }
                 putchar('\n');
         }
 
-        if (!feof(stdin))
+        if (!feof(stdin)) {
                 error(err_input_read_error);
+        }
 
         return EXIT_SUCCESS;
 }
