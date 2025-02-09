@@ -31,6 +31,8 @@ Total line length is limited to 4095 symbols, including newline char.
 
 This is a straightforward implementation for Linux.
 I suppose it can be ported to another OS if necessary.
+Only an alternative to `strptime` is required.
+Everything else should be C90 compatible.
 
 Use like this:
 
@@ -113,9 +115,8 @@ static const char *print_timestamp_as_iso(const char *s)
         static const char *fmt_apache = "%d/%b/%Y:%H:%M:%S %z";
         static const char *fmt_iso = "%Y-%m-%dT%H:%M:%S%z";
 
-        char dt_buf[32];
-        struct tm time;
-        memset(&time, 0, sizeof(struct tm));
+        char dt_buf[32] = {0};
+        struct tm time = {0};
 
         if (*s != '[') {
                 error(err_wrong_line_format);
@@ -140,7 +141,7 @@ static const char *print_timestamp_as_iso(const char *s)
 
 int main(int argc, char *argv[])
 {
-        char in_buf[4096];
+        char in_buf[4096] = {0};
         const char *s;
 
         (void)**argv;
