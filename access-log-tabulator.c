@@ -58,20 +58,26 @@ An explanation of Common and Combined Log Formats is available at:
 #include <string.h>
 #include <time.h>
 
-const char *err_too_many_args = "ERR_TOO_MANY_ARGS";
-const char *err_line_is_too_long = "ERR_LINE_IS_TOO_LONG";
-const char *err_wrong_line_format = "ERR_WRONG_LINE_FORMAT";
-const char *err_input_read_error = "ERR_INPUT_READ_ERROR";
-const char *err_wrong_time_format = "ERR_WRONG_TIME_FORMAT";
-const char *err_time_buffer_size_exceeded = "ERR_TIME_BUFFER_SIZE_EXCEEDED";
+static const char *err_too_many_args = /**/
+    "ERR_TOO_MANY_ARGS";
+static const char *err_line_is_too_long = /**/
+    "ERR_LINE_IS_TOO_LONG";
+static const char *err_wrong_line_format = /**/
+    "ERR_WRONG_LINE_FORMAT";
+static const char *err_input_read_error = /**/
+    "ERR_INPUT_READ_ERROR";
+static const char *err_wrong_time_format = /**/
+    "ERR_WRONG_TIME_FORMAT";
+static const char *err_time_buffer_size_exceeded = /**/
+    "ERR_TIME_BUFFER_SIZE_EXCEEDED";
 
-void error(const char *m)
+static void error(const char *m)
 {
         fprintf(stderr, "Error: %s\n", m);
         exit(EXIT_FAILURE);
 }
 
-const char *print_non_spaces(const char *s)
+static const char *print_non_spaces(const char *s)
 {
         for (; !isspace(*s) && *s != '\0'; s++) {
                 putchar(*s);
@@ -79,7 +85,7 @@ const char *print_non_spaces(const char *s)
         return s;
 }
 
-const char *print_enclosed(const char *s, const char op, const char end)
+static const char *print_enclosed(const char *s, const char op, const char end)
 {
         if (*s != op) {
                 error(err_wrong_line_format);
@@ -95,14 +101,14 @@ const char *print_enclosed(const char *s, const char op, const char end)
         return s;
 }
 
-const char *skip_spaces(const char *s)
+static const char *skip_spaces(const char *s)
 {
         for (; isspace(*s) && *s != '\0'; s++)
                 ;
         return s;
 }
 
-const char *print_timestamp_as_iso(const char *s)
+static const char *print_timestamp_as_iso(const char *s)
 {
         static const char *fmt_apache = "%d/%b/%Y:%H:%M:%S %z";
         static const char *fmt_iso = "%Y-%m-%dT%H:%M:%S%z";
