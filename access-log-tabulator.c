@@ -1,42 +1,53 @@
 /*
-        Author: Anton Muravev
-        Homepage: https://tsb99x.ru
-        Filename: access_log_tabulator.c
-        Version: 1
-        Release Date: 2024-09-03T20:11:41+03:00
-        License: Public Domain <https://unlicense.org>, see at the end of file.
-        Third-Party Dependencies: none
 
-        Compiled successfully with:
-                gcc -O2 -ansi \
+Author: Anton Muravev
+Homepage: https://tsb99x.ru
+Filename: access_log_tabulator.c
+Version: 1
+Release Date: 2024-09-03T20:11:41+03:00
+License: Public Domain <https://unlicense.org>, see at the end of file.
+Third-Party Dependencies: none
+
+Compiled successfully with:
+
+        GCC 12
+        $ gcc -O2 -std=c90 \
                 -Wall -Wextra -Wpedantic -Wstrict-prototypes \
-                -o access_log_tabulator{,.c}
+                -o access-log-tabulator{,.c}
 
-        This program will convert logs from Apache format to Tab-Separated
-        Values (TSV) format, dropping all quoting and additionally converting
-        time field into ISO 8601-like format, which can help with an import into
-        DB and logs sorting by time.
+        Clang 14
+        $ clang -O2 -std=c90 \
+                -Weverything \
+                -o access-log-tabulator{,.c}
 
-        No sorting is included, this is a line-by-line converter.
+This program will convert logs from Apache format to Tab-Separated Values (TSV)
+format, dropping all quoting and additionally converting time field into ISO
+8601-like format, which can help with an import into DB and logs sorting by
+time.
 
-        Total line length is limited to 4095 symbols, including newline char.
+No sorting is included, this is a line-by-line converter.
 
-        This is a straightforward implementation for Linux.
-        I suppose it can be ported to another OS if necessary.
+Total line length is limited to 4095 symbols, including newline char.
 
-        Use like this:
-                zcat -f *.access.log* \
+This is a straightforward implementation for Linux.
+I suppose it can be ported to another OS if necessary.
+
+Use like this:
+
+        $ zcat -f *.access.log* \
                 | ./access_log_tabulator \
                 | (sed -u 1q; sort) \
                 > sorted.tsv
 
-        Or tail some access log in real-time:
-                tail -f access.log \
+Or tail some access log in real-time:
+
+        $ tail -f access.log \
                 | ./access_log_tabulator \
                 > unsorted.tsv
 
-        An explanation of Common and Combined Log Formats is available at:
-        - https://httpd.apache.org/docs/current/logs.html
+An explanation of Common and Combined Log Formats is available at:
+- https://httpd.apache.org/docs/current/logs.html
+
 */
 
 #define _XOPEN_SOURCE
@@ -201,28 +212,27 @@ int main(int argc, char *argv[])
 }
 
 /*
-        This is free and unencumbered software released into the public domain.
 
-        Anyone is free to copy, modify, publish, use, compile, sell, or
-        distribute this software, either in source code form or as a compiled
-        binary, for any purpose, commercial or non-commercial, and by any
-        means.
+This is free and unencumbered software released into the public domain.
 
-        In jurisdictions that recognize copyright laws, the author or authors
-        of this software dedicate any and all copyright interest in the
-        software to the public domain. We make this dedication for the benefit
-        of the public at large and to the detriment of our heirs and
-        successors. We intend this dedication to be an overt act of
-        relinquishment in perpetuity of all present and future rights to this
-        software under copyright law.
+Anyone is free to copy, modify, publish, use, compile, sell, or distribute this
+software, either in source code form or as a compiled binary, for any purpose,
+commercial or non-commercial, and by any means.
 
-        THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-        EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-        MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-        IN NO EVENT SHALL THE AUTHORS BE LIABLE FOR ANY CLAIM, DAMAGES OR
-        OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
-        ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
-        OTHER DEALINGS IN THE SOFTWARE.
+In jurisdictions that recognize copyright laws, the author or authors of this
+software dedicate any and all copyright interest in the software to the public
+domain. We make this dedication for the benefit of the public at large and to
+the detriment of our heirs and successors. We intend this dedication to be an
+overt act of relinquishment in perpetuity of all present and future rights to
+this software under copyright law.
 
-        For more information, please refer to <http://unlicense.org/>
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+For more information, please refer to <http://unlicense.org/>
+
 */
