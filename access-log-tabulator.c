@@ -2,9 +2,10 @@
 
 Author: Anton Muravev
 Homepage: https://tsb99x.ru
-Filename: access_log_tabulator.c
-Version: 1
+Filename: access-log-tabulator.c
+Version: 2
 Release Date: 2024-09-03T20:11:41+03:00
+Last Update: 2025-02-10T21:07:56+03:00
 License: Public Domain <https://unlicense.org>, see at the end of file.
 Third-Party Dependencies: none
 
