@@ -12,13 +12,16 @@ Compiled successfully with:
 
         GCC 12
         $ gcc -O2 -std=c90 \
-                -Wall -Wextra -Wpedantic -Wstrict-prototypes \
+                -Wall -Wextra -Wpedantic \
                 -o access-log-tabulator{,.c}
 
         Clang 14
         $ clang -O2 -std=c90 \
                 -Weverything \
                 -o access-log-tabulator{,.c}
+
+        MSVC 2010
+        > cl.exe /O2 /W4 /Za access-log-tabulator.c
 
 This program will convert logs from Apache format to Tab-Separated Values (TSV)
 format, dropping all quoting and additionally converting time field into ISO
@@ -28,11 +31,6 @@ time.
 No sorting is included, this is a line-by-line converter.
 
 Total line length is limited to 4095 symbols, including newline char.
-
-This is a straightforward implementation for Linux.
-I suppose it can be ported to another OS if necessary.
-Only an alternative to `strptime` is required.
-Everything else should be C90 compatible.
 
 Use like this:
 
@@ -52,8 +50,6 @@ An explanation of Common and Combined Log Formats is available at:
 
 */
 
-#define _XOPEN_SOURCE
-
 #include <ctype.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -72,6 +68,10 @@ static const char *err_wrong_time_format = /**/
     "ERR_WRONG_TIME_FORMAT";
 static const char *err_time_buffer_size_exceeded = /**/
     "ERR_TIME_BUFFER_SIZE_EXCEEDED";
+static const char *err_failed_to_parse_month = /**/
+    "ERR_FAILED_TO_PARSE_MONTH";
+static const char *err_failed_to_parse_apache_datetime = /**/
+    "ERR_FAILED_TO_PARSE_APACHE_DATETIME";
 
 static void error(const char *m)
 {
@@ -110,19 +110,71 @@ static const char *skip_spaces(const char *s)
         return s;
 }
 
+static int parse_month(const char m[4])
+{
+        static const char *const months[] = {
+            "Jan",
+            "Feb",
+            "Mar",
+            "Apr",
+            "May",
+            "Jun",
+            "Jul",
+            "Aug",
+            "Sep",
+            "Oct",
+            "Nov",
+            "Dec",
+        };
+
+        int i;
+
+        for (i = 0; i < 12; i++) {
+                if (!strcmp(months[i], m)) {
+                        return i;
+                }
+        }
+        error(err_failed_to_parse_month);
+        return -1;
+}
+
+static const char *
+parse_apache_datetime(const char *s, struct tm *time, int *gmt_offset)
+{
+        char mon_buf[4] = {0};
+        int chars_read = 0;
+        int args_read = sscanf(s,
+                               "%2d/%3s/%4d:%2d:%2d:%2d %5d%n",
+                               &time->tm_mday,
+                               mon_buf,
+                               &time->tm_year,
+                               &time->tm_hour,
+                               &time->tm_min,
+                               &time->tm_sec,
+                               gmt_offset,
+                               &chars_read);
+
+        if (args_read != 7) {
+                error(err_failed_to_parse_apache_datetime);
+        }
+        time->tm_year -= 1900;
+        time->tm_mon = parse_month(mon_buf);
+        return s + chars_read;
+}
+
 static const char *print_timestamp_as_iso(const char *s)
 {
-        static const char *fmt_apache = "%d/%b/%Y:%H:%M:%S %z";
-        static const char *fmt_iso = "%Y-%m-%dT%H:%M:%S%z";
+        static const char *fmt_iso = "%Y-%m-%dT%H:%M:%S";
 
         char dt_buf[32] = {0};
         struct tm time = {0};
+        int gmt_offset = 0;
 
         if (*s != '[') {
                 error(err_wrong_line_format);
         }
         s++;
-        s = strptime(s, fmt_apache, &time);
+        s = parse_apache_datetime(s, &time, &gmt_offset);
         if (!s) {
                 error(err_wrong_time_format);
         }
@@ -130,11 +182,15 @@ static const char *print_timestamp_as_iso(const char *s)
                 error(err_wrong_line_format);
         }
         s++;
-
         if (!strftime(dt_buf, sizeof(dt_buf), fmt_iso, &time)) {
                 error(err_time_buffer_size_exceeded);
         }
         printf("%s", dt_buf);
+        if (gmt_offset >= 0) {
+                printf("+%04d", gmt_offset);
+        } else {
+                printf("%05d", gmt_offset);
+        }
 
         return s;
 }
@@ -142,7 +198,7 @@ static const char *print_timestamp_as_iso(const char *s)
 int main(int argc, char *argv[])
 {
         char in_buf[4096] = {0};
-        const char *s;
+        const char *s = NULL;
 
         (void)**argv;
 
